@@ -15,7 +15,6 @@ class TempMatcher:
 
     @classmethod
     def find_max_match(cls, template, roi_gray):
-
         res = cv2.matchTemplate(roi_gray, template, cv2.TM_CCOEFF_NORMED)
         loc = np.where(res >= res.max())
         # for pt in zip(*loc[::-1]):

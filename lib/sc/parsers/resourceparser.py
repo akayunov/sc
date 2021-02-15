@@ -1,24 +1,20 @@
 from pathlib import Path
 import numpy
 import cv2
-from ..const import DebugWindow, RESOURCE_DIR
+from ..const import DebugWindow, RESOURCE_DIR, FONT
 from ..temp_matcher import TempMatcher
 
 
 def parse_while_color(roi):
-    # set lower and upper color limits
-    lower_val = numpy.array([180, 180, 180])
-    upper_val = numpy.array([255, 255, 255])
-    # Threshold the HSV image to get only green colors
-    mask = cv2.inRange(roi, lower_val, upper_val)
     gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
-    return cv2.bitwise_and(gray, gray, mask=mask)
+    ret_, img = cv2.threshold(gray, 180, 255, cv2.THRESH_BINARY)
+    return img
 
 
 class ResourceParser:
-    x = 14
-    x_shift = 9
-    y = 1016
+    x = 15
+    x_shift = 7
+    y = 1010
     y_shift = 62
 
     DIGIT_TEMPLS = {0: parse_while_color(cv2.imread(str(Path(RESOURCE_DIR, 'digital-0.png')))),
@@ -32,19 +28,16 @@ class ResourceParser:
                     8: parse_while_color(cv2.imread(str(Path(RESOURCE_DIR, 'digital-8.png')))),
                     9: parse_while_color(cv2.imread(str(Path(RESOURCE_DIR, 'digital-9.png'))))}
 
-    cv2.imwrite(str(Path(RESOURCE_DIR, 'res.bmp')), DIGIT_TEMPLS[3])
-
     def __init__(self):
         pass
 
     def parse(self, frame):
         roi_gray = parse_while_color(frame[self.x:self.x + self.x_shift, self.y:self.y + self.y_shift])
-        cv2.imshow(DebugWindow.name, cv2.resize(roi_gray, None, fx=DebugWindow.scale_x, fy=DebugWindow.scale_y,
-                                                interpolation=cv2.INTER_CUBIC))
-        cv2.waitKey(0)
-        # debug = numpy.copy(roi_gray)
+        # cv2.imshow(DebugWindow.name, cv2.resize(roi_gray, None, fx=DebugWindow.scale_x, fy=DebugWindow.scale_y,
+        #                                         interpolation=cv2.INTER_CUBIC))
+        # cv2.imwrite(str(Path(RESOURCE_DIR, 'res.bmp')), roi_gray)
+        # cv2.waitKey(0)
         values = []
-        result = ''
         for _ in range(5):
             max_value = 0
             coord = (0, 0)
@@ -56,6 +49,7 @@ class ResourceParser:
                 #     raise Exception(
                 #         f'Size of templ {templ["name"]}:{templ["value"].shape[0]}  and ROI: {ROI.shape[0]} are different')
                 loc, max_ = TempMatcher.find_max_match(templ_value, roi_gray)
+                print(templ_name, max_)
                 if max_ > max_value:
                     max_value = max_
                     coord = loc
@@ -63,14 +57,17 @@ class ResourceParser:
 
             if max_value > 0.5:
                 values.append((str(number), coord))
-                w, h = templ_value.shape[::-1]
-                roi_gray[coord[1]:, coord[0]: 1 + coord[0] + h] = 0
-                # debug = numpy.concatenate(debug, roi_gray)
-                cv2.imshow(DebugWindow.name, cv2.resize(roi_gray, None, fx=DebugWindow.scale_x, fy=DebugWindow.scale_y,
-                                                        interpolation=cv2.INTER_CUBIC))
-                cv2.waitKey(0)
-        # cv2.imshow(DebugWindow.name, cv2.resize(debug, None, fx=DebugWindow.scale_x, fy=DebugWindow.scale_y,
-        #                                         interpolation=cv2.INTER_CUBIC))
+                h, w = self.DIGIT_TEMPLS[number].shape
+                # roi_gray[coord[1], coord[0]] = 150
+                # cv2.imshow(DebugWindow.name, cv2.resize(roi_gray, None, fx=DebugWindow.scale_x, fy=DebugWindow.scale_y,
+                #                                         interpolation=cv2.INTER_CUBIC))
+                # cv2.waitKey(0)
+                roi_gray[coord[1]:, coord[0]: coord[0] + w] = 0
+
+                # cv2.imshow(DebugWindow.name, cv2.resize(roi_gray, None, fx=DebugWindow.scale_x, fy=DebugWindow.scale_y,
+                #                                         interpolation=cv2.INTER_CUBIC))
+
         values = sorted(values, key=lambda x: x[1][0])
         result = ''.join(map(lambda x: x[0], values))
+        print(result)
         return result, 0, 0, 0

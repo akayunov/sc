@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 from pathlib import Path
 from .parsers.resourceparser import ResourceParser
+from .parsers.minimapparser import MiniMapParser
 from .const import MainWindow, RESOURCE_DIR, FONT
 from .videoreader import VideoReader
 from .temp_matcher import TempMatcher
@@ -11,6 +12,7 @@ HP_LINE_TEMPL = cv2.imread(str(Path(RESOURCE_DIR, 'hp-line.png')), 0)
 
 def run():
     resource_paser = ResourceParser()
+    mini_map_parser = MiniMapParser()
     video_reader = VideoReader(str(Path(RESOURCE_DIR, 'video.mp4')))
 
     key_code = None
@@ -20,11 +22,13 @@ def run():
         # match template
         TempMatcher.match(HP_LINE_TEMPL, frame)
 
+        cv2.imshow(MainWindow.name, frame)
         # parse resources
         minerals, gas, supply_exists, supply_avail = resource_paser.parse(frame)
-
-        cv2.putText(frame, f'Frame number: {i} key_code:{key_code} {minerals}-{gas}-{supply_exists}-{supply_avail}', (10, 55),
-                    FONT, 1, (0, 255, 0), 2, cv2.LINE_AA)
+        mini_map_parser.parse(frame)
+        cv2.putText(frame, f'{minerals}', (resource_paser.y, resource_paser.x+40), FONT, 1, (0, 0, 255), 2, cv2.LINE_AA)
+        # cv2.putText(frame, f'Frame number: {i} key_code:{key_code} {minerals}-{gas}-{supply_exists}-{supply_avail}', (10, 55),
+        #             FONT, 1, (0, 255, 0), 2, cv2.LINE_AA)
         cv2.imshow(MainWindow.name, frame)
 
         key_code = cv2.waitKey(0)
