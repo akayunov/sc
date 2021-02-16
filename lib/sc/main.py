@@ -35,6 +35,6 @@ def run():
         if key_code == 27:
             break
         elif key_code == 32:
-            video_reader.next(100)
+            video_reader.next(1000)
 
     video_reader.close()

@@ -20,3 +20,23 @@ class DebugWindow:
     scale_x: int = 3
     scale_y: int = 3
     cv2.namedWindow(name)
+
+
+@dataclass
+class _ScreenSize:
+    width: int = 1280
+    heigth: int = 720
+
+
+ScreenSize = _ScreenSize()
+
+
+@dataclass
+class _MiniMapSize:
+    x: int = 547
+    x_shift: int = 153
+    y: int = 19
+    y_shift: int = 175
+
+
+MiniMapSize = _MiniMapSize()
