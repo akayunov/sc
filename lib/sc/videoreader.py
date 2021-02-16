@@ -11,11 +11,11 @@ class VideoReader:
             raise Exception('Not ret')
         self.cap.set(cv2.CAP_PROP_POS_FRAMES, self.cur_frame_number)
         self.cur_frame_number += 1
-        self.gen = self.open()
+        self.gen = self._gen()
         self.gen.send(None)
         cv2.setMouseCallback(MainWindow.name, self.mouse_callback)
 
-    def open(self):
+    def _gen(self):
         while True:
             flag = yield self.cur_frame_number, self.frame
             if flag == 'break':
