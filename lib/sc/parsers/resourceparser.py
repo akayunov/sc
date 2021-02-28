@@ -35,7 +35,7 @@ class ResourceParser:
         roi_gray = parse_while_color(frame[self.x:self.x + self.x_shift, self.y:self.y + self.y_shift])
         # cv2.imshow(DebugWindow.name, cv2.resize(roi_gray, None, fx=DebugWindow.scale_x, fy=DebugWindow.scale_y,
         #                                         interpolation=cv2.INTER_CUBIC))
-        # cv2.imwrite(str(Path(RESOURCE_DIR, 'res.bmp')), roi_gray)
+        # cv2.imwrite(str(Path(RESOURCE_DIR, 'hp-line-contur.bmp')), roi_gray)
         # cv2.waitKey(0)
         values = []
         for _ in range(5):
@@ -45,7 +45,7 @@ class ResourceParser:
             for templ_name, templ_value in self.DIGIT_TEMPLS.items():
                 # if ROI.shape[0] != templ['value'].shape[0]:
                 #     cv2.imshow(DebugWindow.name, ROI)
-                #     cv2.imwrite(str(Path(RESOURCE_DIR, 'res.bmp')), ROI)
+                #     cv2.imwrite(str(Path(RESOURCE_DIR, 'hp-line-contur.bmp')), ROI)
                 #     raise Exception(
                 #         f'Size of templ {templ["name"]}:{templ["value"].shape[0]}  and ROI: {ROI.shape[0]} are different')
                 loc, max_ = TempMatcher.find_max_match(templ_value, roi_gray)
